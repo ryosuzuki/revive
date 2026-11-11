@@ -1,6 +1,6 @@
 {
   "status": "ready",
-  "summary": "Preserved the dependency-free Python 3D ray/AABB distance implementation and added explicit face-tangency and comprehensive non-finite input regressions. Source compilation, 21 synthetic unittest tests, and usage smoke checks passed. Documentation is English. This is an infrastructure pipeline smoke test, not a paper or device demonstration. Test commands run from papers/pipeline-smoke/.",
+  "summary": "Preserved the dependency-free ray/AABB distance implementation and added ray_box_hit_point using its validated distance routine. Non-unit directions, misses, and inside origins are covered. Source compilation, all 28 synthetic unittest tests, and the English README example passed. This is an infrastructure pipeline smoke test, not a paper or device demonstration. Commands run from papers/pipeline-smoke/.",
   "tests": [
     {
       "command": "python3 -m py_compile ray_box.py tests/test_ray_box.py",
@@ -11,18 +11,18 @@
       "result": "passed"
     },
     {
-      "command": "python3 -c 'from ray_box import ray_box_distance as cast; assert cast((-2, .5, .5), (2, 0, 0), (0, 0, 0), (1, 1, 1)) == 2.0; assert cast((-2, 2, .5), (1, 0, 0), (0, 0, 0), (1, 1, 1)) is None; assert cast((.5, .5, .5), (-1, 2, 0), (0, 0, 0), (1, 1, 1)) == 0.0'",
+      "command": "python3 -c 'from pathlib import Path; exec(Path(\"README.md\").read_text().split(\"```python\\n\", 1)[1].split(\"```\", 1)[0]); print(\"README example passed:\", distance, point)'",
       "result": "passed"
     }
   ],
   "acceptance": {
     "source": {
       "status": "passed",
-      "evidence": "Dependency-free ray_box.py, English README.md, and synthetic tests/test_ray_box.py are present in papers/pipeline-smoke/."
+      "evidence": "Dependency-free ray_box.py exposes ray_box_distance and ray_box_hit_point, with English README.md and synthetic tests/test_ray_box.py in papers/pipeline-smoke/."
     },
     "software-tests": {
       "status": "passed",
-      "evidence": "Python source compilation, unittest discovery with 21 passing tests, and usage smoke assertions succeeded."
+      "evidence": "Source compilation passed; unittest discovery ran 28 passing tests; the README example executed successfully with distance 2.0 and point (0.0, 0.5, 0.5)."
     }
   },
   "limitations": [

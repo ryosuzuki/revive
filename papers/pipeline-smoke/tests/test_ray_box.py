@@ -6,7 +6,7 @@ import sys
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from ray_box import ray_box_distance
+from ray_box import ray_box_distance, ray_box_hit_point
 
 
 class RayBoxTests(unittest.TestCase):
@@ -134,6 +134,50 @@ class RayBoxTests(unittest.TestCase):
 
     def test_iterable_inputs(self):
         self.assertEqual(self.cast(iter((-2, 0.5, 0.5)), [2, 0, 0]), 2)
+
+
+class RayBoxHitPointTests(unittest.TestCase):
+    def cast(self, origin, direction, lo=(0, 0, 0), hi=(1, 1, 1)):
+        return ray_box_hit_point(origin, direction, lo, hi)
+
+    def test_nonunit_direction_nearest_hit(self):
+        self.assertEqual(self.cast((-2, 0.5, 0.5), (4, 0, 0)), (0, 0.5, 0.5))
+
+    def test_diagonal_hit_scale_invariance(self):
+        for scale in (1e-300, 0.5, 1, 7, 1e300):
+            with self.subTest(scale=scale):
+                point = self.cast((-2, -1, 0.5), (2 * scale, scale, 0))
+                for actual, expected in zip(point, (0, 0, 0.5)):
+                    self.assertAlmostEqual(actual, expected)
+
+    def test_misses(self):
+        for origin, direction in (((-2, 2, 0.5), (2, 0, 0)),
+                                  ((2, 0.5, 0.5), (3, 0, 0)),
+                                  ((-2, -4, 0.5), (2, 2, 0))):
+            with self.subTest(origin=origin, direction=direction):
+                self.assertIsNone(self.cast(origin, direction))
+
+    def test_inside_and_boundary_return_origin(self):
+        for origin in ((0.25, 0.5, 0.75), (0, 0.5, 0.5)):
+            with self.subTest(origin=origin):
+                self.assertEqual(self.cast(origin, (-4, 2, 0)), origin)
+
+    def test_negative_direction_and_face_tangency(self):
+        self.assertEqual(self.cast((3, 0, 0.5), (-4, 0, 0)), (1, 0, 0.5))
+
+    def test_single_use_iterables(self):
+        args = ((-2, 0.5, 0.5), (4, 0, 0), (0, 0, 0), (1, 1, 1))
+        self.assertEqual(ray_box_hit_point(*(iter(arg) for arg in args)), (0, 0.5, 0.5))
+
+    def test_validation_is_preserved(self):
+        for argument, invalid in ((0, (math.nan, 0, 0)), (1, (0, 0, 0)),
+                                  (1, (math.inf, 0, 0)), (2, (2, 0, 0)),
+                                  (3, (1, 1)), (3, (1, 1, -math.inf))):
+            args = [(0.5, 0.5, 0.5), (1, 0, 0), (0, 0, 0), (1, 1, 1)]
+            args[argument] = invalid
+            with self.subTest(argument=argument, invalid=invalid):
+                with self.assertRaises(ValueError):
+                    ray_box_hit_point(*args)
 
 
 if __name__ == "__main__":

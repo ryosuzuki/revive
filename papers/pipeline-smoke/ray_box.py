@@ -25,6 +25,16 @@ def _vector(value, name):
     return tuple(result)
 
 
+def _unit_direction(direction):
+    # Scale first so normalization handles both tiny and very large directions.
+    scale = max(abs(component) for component in direction)
+    if scale == 0.0:
+        raise ValueError("direction must be nonzero")
+    scaled = tuple(component / scale for component in direction)
+    length = math.hypot(*scaled)
+    return tuple(component / length for component in scaled)
+
+
 def ray_box_distance(origin, direction, bounds_min, bounds_max):
     """Return the nearest nonnegative Euclidean distance, or None for a miss.
 
@@ -44,13 +54,7 @@ def ray_box_distance(origin, direction, bounds_min, bounds_max):
     if any(lo > hi for lo, hi in zip(lower, upper)):
         raise ValueError("bounds_min must be <= bounds_max on every axis")
 
-    # Scale first so normalization handles both tiny and very large directions.
-    scale = max(abs(component) for component in direction)
-    if scale == 0.0:
-        raise ValueError("direction must be nonzero")
-    scaled = tuple(component / scale for component in direction)
-    length = math.hypot(*scaled)
-    unit = tuple(component / length for component in scaled)
+    unit = _unit_direction(direction)
 
     entry, exit_distance = 0.0, math.inf
     for position, velocity, lo, hi in zip(origin, unit, lower, upper):
@@ -66,3 +70,23 @@ def ray_box_distance(origin, direction, bounds_min, bounds_max):
         if entry > exit_distance:
             return None
     return entry
+
+
+def ray_box_hit_point(origin, direction, bounds_min, bounds_max):
+    """Return the nearest forward hit as an XYZ tuple, or None for a miss.
+
+    Uses ray_box_distance for intersection and validation, with the same input
+    contract and floating-point limits. An origin in or on the box is returned
+    as the hit point. Direction need not be unit length.
+    """
+    # Materialize once so single-use iterables also work after distance lookup.
+    origin = _vector(origin, "origin")
+    direction = _vector(direction, "direction")
+    distance = ray_box_distance(origin, direction, bounds_min, bounds_max)
+    if distance is None:
+        return None
+    if distance == 0.0:
+        return origin
+    unit = _unit_direction(direction)
+    return tuple(position + distance * velocity
+                 for position, velocity in zip(origin, unit))
