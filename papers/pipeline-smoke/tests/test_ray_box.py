@@ -38,6 +38,23 @@ class RayBoxTests(unittest.TestCase):
     def test_parallel_on_boundary(self):
         self.assertEqual(self.cast((-2, 0, 1), (1, 0, -0.0)), 2)
 
+    def test_tangent_to_each_face(self):
+        # Travel through the interior of a face, avoiding edges and corners.
+        for normal_axis in range(3):
+            travel_axis = (normal_axis + 1) % 3
+            for face in (0, 1):
+                for sign in (-1, 1):
+                    origin = [0.5, 0.5, 0.5]
+                    direction = [0, 0, 0]
+                    origin[normal_axis] = face
+                    origin[travel_axis] = -2 if sign == 1 else 3
+                    direction[travel_axis] = sign * 2
+                    with self.subTest(axis=normal_axis, face=face, sign=sign):
+                        self.assertEqual(self.cast(origin, direction), 2.0)
+                        # Moving just outside that face must turn it into a miss.
+                        origin[normal_axis] = -0.001 if face == 0 else 1.001
+                        self.assertIsNone(self.cast(origin, direction))
+
     def test_inside(self):
         self.assertEqual(self.cast((0.5, 0.5, 0.5), (1, -2, 3)), 0.0)
 
@@ -87,6 +104,23 @@ class RayBoxTests(unittest.TestCase):
         for scale in (1e-300, 0.1, 1, 7, 1e300):
             with self.subTest(scale=scale):
                 self.assertAlmostEqual(self.cast((-1, -1, -1), (scale,) * 3), math.sqrt(3))
+
+    def test_nonfinite_rejected_in_every_argument_and_component(self):
+        for argument in range(4):
+            for axis in range(3):
+                for value in (math.nan, math.inf, -math.inf):
+                    args = [[-1, 0.5, 0.5], [1, 0, 0], [0, 0, 0], [1, 1, 1]]
+                    args[argument][axis] = value
+                    with self.subTest(argument=argument, axis=axis, value=value):
+                        with self.assertRaises(ValueError):
+                            ray_box_distance(*args)
+
+    def test_nonfinite_rejected_before_inside_or_miss_shortcuts(self):
+        for origin in ((0.5, 0.5, 0.5), (2, 0.5, 0.5)):
+            for value in (math.nan, math.inf, -math.inf):
+                with self.subTest(origin=origin, value=value):
+                    with self.assertRaises(ValueError):
+                        self.cast(origin, (0, 1, 0), hi=(1, 1, value))
 
     def test_small_nonzero_component_is_not_parallel(self):
         self.assertEqual(self.cast((-1, 0.5, 0.5), (1e-300, 0, 0)), 1)

@@ -1,6 +1,6 @@
 {
   "status": "ready",
-  "summary": "Implemented a dependency-free Python 3D ray/AABB distance utility with input validation, English documentation, and 18 passing synthetic regression tests. This is an infrastructure pipeline smoke test, not a paper or device demonstration.",
+  "summary": "Preserved the dependency-free Python 3D ray/AABB distance implementation and added explicit face-tangency and comprehensive non-finite input regressions. Source compilation, 21 synthetic unittest tests, and usage smoke checks passed. Documentation is English. This is an infrastructure pipeline smoke test, not a paper or device demonstration. Test commands run from papers/pipeline-smoke/.",
   "tests": [
     {
       "command": "python3 -m py_compile ray_box.py tests/test_ray_box.py",
@@ -15,6 +15,16 @@
       "result": "passed"
     }
   ],
+  "acceptance": {
+    "source": {
+      "status": "passed",
+      "evidence": "Dependency-free ray_box.py, English README.md, and synthetic tests/test_ray_box.py are present in papers/pipeline-smoke/."
+    },
+    "software-tests": {
+      "status": "passed",
+      "evidence": "Python source compilation, unittest discovery with 21 passing tests, and usage smoke assertions succeeded."
+    }
+  },
   "limitations": [
     "Uses Python floating-point arithmetic; extreme coordinate differences or distances may overflow, and extreme direction component ratios may underflow.",
     "Synthetic software validation only; no research-paper reproduction or physical-device claim. No external access is required and no large artifacts are produced."

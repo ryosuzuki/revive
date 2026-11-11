@@ -55,5 +55,9 @@ python3 -m unittest discover -s tests -v
 
 Tests cover nearest hits, misses, parallel and negative directions, inside and
 boundary origins, tangencies, degenerate boxes, invalid inputs, and translation
-and direction-scale invariance. `REVIVE_RESULT.json` records the execution result.
+and direction-scale invariance. Explicit regressions check rays tangent to all six
+faces in both travel directions, with nearby outside rays as miss controls. They
+also reject NaN and positive/negative infinity in every component of every input,
+including inputs that could otherwise trigger an early inside or miss result.
+`REVIVE_RESULT.json` records the execution result. Its commands run from this folder.
 There are no large deliverables or external artifacts.
