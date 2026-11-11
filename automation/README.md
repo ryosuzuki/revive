@@ -1,13 +1,13 @@
 # Issue-driven Revive execution
 
-This is a **local deterministic watcher + Codex CLI worker**, not a GitHub-hosted agent and not a native desktop-app scheduled task. GitHub Actions runs software checks on pushes/PRs; it does not hold lab credentials or execute public issue text on lab machines.
+This is an **authenticated GitHub webhook + durable local queue + Codex CLI worker**, not a GitHub-hosted agent and not a native desktop-app scheduled task. GitHub Actions runs software checks on pushes/PRs; it does not hold lab credentials or execute public issue text on lab machines.
 
 ## Requester experience
 
 1. Open **Issues → New issue → Revive a research paper**.
 2. Fill in paper slug, DOI/URL, requested behavior, public inputs, and acceptance tests. Submit.
 3. The form applies `revive:ready`. An immutable numeric-ID allowlist accepts Ryo or Ada; unknown authors do not start execution.
-4. The local watcher detects the request (recommended interval: 120 seconds), claims one issue, and starts an isolated Git worktree and actual Codex implementation run.
+4. The authenticated GitHub webhook detects the request immediately, claims one issue, and starts an isolated Git worktree and actual Codex implementation run.
 5. Codex implements, builds/tests, inspects outputs, and iterates. The supervisor independently runs the paper's Python regression checks, audits owned source paths/public artifacts, and publishes a **PR for review**, not an automatic merge.
 6. Trusted issue comments and PR review/comments become follow-up context. A fresh trusted-content fingerprint can initiate another isolated iteration. Closing the original issue or adding `revive:cancel` stops a running worker at its next 30-second check and prevents later publication checks. Remove `revive:ready` to pause.
 
@@ -67,3 +67,14 @@ The dispatcher is a continuing state machine: `running → verification → publ
 The operator separately adds that digest to `approved_public_asset_hashes` in the **private** config after inspection. Do not approve private room captures merely because they are present locally.
 
 The worker may write requested build artifacts only to its issue-specific private artifact directory, supplied by `--add-dir`; it cannot write the independent operator acceptance receipt through that grant. An operator device receipt is kept outside source at `operator-device-evidence.json` in the private state directory, keyed by Issue number with `source_fingerprint`, `status: passed`, and a concrete `evidence` locator. Keep private paths/device details out of public comments.
+
+
+## Webhook deployment
+
+Preferred entrypoint: `python3 automation/revive_webhook.py serve --config /private/runtime/config.json`. Bind only `127.0.0.1:18472`; the sole POST route is `/webhooks/github`, with JSON body cap 2 MiB and a 10-second socket read timeout. An independently provisioned HTTPS reverse proxy must expose only this receiver, never the Gateway/admin port. Do not keep the old two-minute polling LaunchAgent active beside it.
+
+Add `webhook` to private config: `host`, `port`, `path`, immutable GitHub `repository_id`, `secret_command` (trusted argv that prints the 1Password-backed HMAC secret), `busy_retry_seconds: 5`, `reconcile_seconds: 3600`. The secret is captured and cached only in receiver memory; it is never a command-line value, plaintext file, source file or log entry.
+
+The receiver verifies HMAC-SHA256, repository identity and trusted sender IDs; it deduplicates delivery IDs and commits minimal metadata to a private SQLite FULL-synchronous durable queue before HTTP202. Event bodies are never shell commands or persisted transcripts. Own marked progress comments are ignored to prevent loops. Pending deliveries survive busy workers, failed-attempt repair backoff, API/database errors and receiver restarts; dispatch alone never consumes an event. A local source-change marker immediately triggers the existing worker's fresh-source fence.
+
+Startup performs an immediate reconciliation for events missed while offline, followed by hourly non-model reconciliation. Normal dispatch is event-driven, not two-minute AI polling. Public GitHub delivery/redelivery history and the private `webhook-dispatch-status.json` distinguish actual delivery from local fixture tests. Database/API failures remain visible in private health receipts and are retried; they do not silently kill the dispatcher while HTTP keeps acknowledging.

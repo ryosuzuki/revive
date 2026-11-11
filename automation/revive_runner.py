@@ -316,10 +316,12 @@ def worker(config_path,number,attempt):
     update(config,number,engine_pid=proc.pid,engine_birth=birth)
     def interrupted(signum,frame):raise RuntimeError('Worker interrupted; owned engine cleanup required')
     signal.signal(signal.SIGTERM,interrupted);signal.signal(signal.SIGINT,interrupted)
-    deadline=time.time()+config.get('timeout_seconds',14400);last_check=0;last_progress=time.time()
+    deadline=time.time()+config.get('timeout_seconds',14400);last_check=0;last_progress=time.time();last_event=None
     while proc.poll() is None:
      if time.time()>deadline:raise RuntimeError('Execution deadline reached; checkpoint will resume on retry')
-     if time.time()-last_check>config.get('source_check_seconds',30):fence(config,number,revision);last_check=time.time()
+     marker=runtime/'source-event.marker'
+     event=marker.stat().st_mtime_ns if marker.exists() else None
+     if event!=last_event or time.time()-last_check>config.get('source_check_seconds',30):fence(config,number,revision);last_check=time.time();last_event=event
      if time.time()-last_progress>config.get('progress_seconds',300):
       elapsed=int((time.time()-record['started'])//60)
       note(config,number,f'Implementation checkpoint remains active ({elapsed} minutes). The agent is still working; no build, device or completion result is inferred from elapsed time.',f'{number}-{attempt}-progress-{elapsed}')
