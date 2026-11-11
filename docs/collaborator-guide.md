@@ -5,7 +5,7 @@
 1. Sign into GitHub as your configured collaborator account and open [New issue](https://github.com/ryosuzuki/revive/issues/new/choose).
 2. Choose **Revive a research paper**. Supply a lowercase paper slug, title/DOI, public source links, target platform, desired behaviors and concrete acceptance scenarios.
 3. Select **apk**, **video**, and **physical-device** when required. Describe the camera view, original question, generated response and expected spatial behavior. A simple synthetic animation is not a substitute for a requested recorded-context demonstration.
-4. Submit. The form adds `revive:ready`. The current local watcher checks every 120 seconds. No AI model runs on empty checks. This is NOT yet an immediate webhook service.
+4. Submit. The form adds `revive:ready`. Signed GitHub Webhooks now notify the local implementation queue immediately. No recurring two-minute poll or idle AI model is used. The real acceptance test dispatched in about 3.4 seconds after receipt; this is an observation, not a latency guarantee.
 5. Watch the Issue for progress/checkpoints and its linked PR. Add corrections to the original Issue or linked PR; the implementation continues on the existing branch. Remove `revive:ready` to pause; add `revive:cancel` or close the Issue to cancel. Control checks normally occur within 30 seconds during execution.
 6. Review the code, actual demo and limitations separately. PR creation is **ready for review**, not a declaration of paper equivalence, merged code, published media or successful hardware testing.
 
@@ -13,7 +13,7 @@ Keep private recordings, room scans, network addresses and credentials OUT of pu
 
 ## What executes
 
-GitHub API detection → numeric-ID authorization → one serialized local worker → isolated Git worktree → Codex CLI implementation → independently rerun tests and acceptance receipts → source/publication preflight → PR. Trusted follow-up content can resume the preserved checkpoint. Failed revisions retry up to three times with backoff; exhausted retries and missing hardware become explicit attention/blocked states, not fabricated completion. Mac availability, login and network connectivity are required.
+GitHub Webhook → raw-body HMAC and repository verification → durable delivery queue → numeric-ID authorization → one serialized local worker → isolated Git worktree → Codex CLI implementation → independently rerun tests and acceptance receipts → source/publication preflight → PR. Trusted follow-up content can resume the preserved checkpoint. Failed revisions retry up to three times with backoff; exhausted retries and missing hardware become explicit attention/blocked states, not fabricated completion. Mac availability, login and network connectivity are required.
 
 The orchestrator runs on the operator Mac Studio. Unity builds/rendering can use an available approved lab Mac Studio; GPU inference requires a compatible approved CUDA worker. This is not a guarantee that every Issue can automatically reserve hardware. Shared storage is not a compute scheduler. Public assets are versioned in GitHub Releases; source stays under `papers/<slug>/`. Private originals and derivatives remain outside public Git history.
 
@@ -31,6 +31,6 @@ The public Release contains **synthetic runtime fixtures**, not private captured
 
 ## Trigger architecture and present status
 
-The currently verified deployment is a custom launchd watcher + Codex CLI, not a native OpenClaw automation. GitHub Actions currently runs CI only. A real Issue produced PR #2, and a follow-up updated the same PR with 21 passing tests. Reconciliation deduplicated the unchanged request. This validates the software lane, not arbitrary future papers or device success.
+The verified deployment is a dedicated signed-webhook receiver plus the existing Codex CLI worker, supervised locally by launchd. GitHub Actions runs CI only. A real GitHub comment event continued Issue #1 and updated the same PR #2 with 28 passing tests. Actual GitHub redelivery did not start a second attempt. Restarting the receiver preserved the same running worker and queued delivery. This validates the software lane, not arbitrary future papers or physical-device success.
 
-For immediate triggering, the recommended next deployment is signed GitHub events → narrow HTTPS ingress/adapter → durable deduplicated queue → existing authorization/claim/verification worker. Keep a low-frequency reconciliation sweep to recover missed deliveries and retries. Do not expose the general Gateway or run untrusted public PR code directly on a privileged lab Mac. See [trigger comparison](trigger-architecture.md). This event ingress is **not deployed**; until an end-to-end delivery is verified, allow up to the current polling interval.
+Normal triggering is now event-driven. Startup immediately reconciles missed events; an hourly non-model sweep is retained for outage recovery. Accepted work remains durably pending while a worker is busy or waiting to retry. The old two-minute polling LaunchAgent is retired. The public ingress exposes only the dedicated HMAC receiver, not the OpenClaw Gateway or administrator API. See [trigger comparison and deployment evidence](trigger-architecture.md).
