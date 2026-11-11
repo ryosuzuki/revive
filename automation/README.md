@@ -45,3 +45,25 @@ python3 -m unittest discover -s tests -v
 ```
 
 The automated cases cover author authorization, cancellation, traversal/injection-shaped slug rejection, quoted task data, quiet polls, active dedupe, no repeat after success, stale claim recovery, publication audits and failure state. These are software tests; the deployment record must separately provide the actual trusted Issue → Codex edits/tests → GitHub PR evidence. A mocked subprocess is not that acceptance test.
+
+## Continuation, publication and acceptance gates
+
+The dispatcher is a continuing state machine: `running → verification → publishing → ready_for_review`, with `failed → retry` from the **same owned worktree/branch**, `queued` after trusted request changes, and explicit `blocked`, `cancelled` or `needs_attention` outcomes. A successful model process is only the start of independent verification. Unmerged PR feedback is applied to the same branch/PR, preserving earlier implementation rather than starting from the catalog's main branch again. Prior closed/merged PRs need an explicit integration decision instead of silently being declared successful.
+
+- Trusted issue body/comments and trusted PR reviews/comments form a stable content fingerprint. Runner-owned marked progress comments are excluded. A changed request stops the old engine and is fenced again before push/PR publication; the next run uses current context.
+- Each live process has a birth identity as well as PID. API errors, timeouts, cancellation and supervisor interruption all reach owned-process-group cleanup. A live orphan engine prevents a new dispatch; an unprovable identity is not permission to kill another process.
+- REST scans paginate all Issue/comment/review pages. Empty scans use no model. Five-minute progress checkpoints and verification/blocked/cancelled/failed states are visible in the original Issue. Exhausted automatic repair retries become a visible maintainer-attention state, not a silent finished/idle claim.
+- The supervisor independently discovers a **nonzero** number of paper tests and runs them. It saves a private verification receipt tied to the exact commit. PR recovery requires that receipt, matching repository/base/head, and an OPEN or MERGED endpoint; a closed unmerged PR or mismatched SHA is not a success.
+- The Issue form's **Required acceptance** checkboxes add `apk`, `video`, or `physical-device`. Free-text older requests conservatively recognize those requirements in their requested-deliverables section. An APK/video cannot be satisfied merely by a Python test: `REVIVE_RESULT.json` must identify an actual file, byte count and SHA256 in the issue's private artifact directory. APK ZIP/manifest and full video decoding are independently checked. Physical-device acceptance requires a separate operator-owned evidence receipt for the exact request fingerprint.
+- Source-only PR publication never publishes raw media by default. Non-text assets (including PNG/JPG/PDF) need both a per-paper `PUBLIC_ASSETS.json` entry and a hash independently approved in the private operator config. The worker cannot authorize its own asset just by writing a manifest. Review and sanitize images/metadata before approval. This mechanical audit is an additional check, not a guarantee against every possible privacy leak.
+- `ready_for_review` means verified source PR, **not merged and not fully delivered public releases**. APK/video release publication remains `review-pending` until the independent publication owner checks provenance and publishes the authorized assets. Device gates remain blocked until real evidence exists.
+
+`PUBLIC_ASSETS.json` example (per paper):
+
+```json
+{"assets":[{"path":"synthetic-demo.png","sha256":"SHA256","origin":"synthetic","source":"reproducible generator","license":"CC0"}]}
+```
+
+The operator separately adds that digest to `approved_public_asset_hashes` in the **private** config after inspection. Do not approve private room captures merely because they are present locally.
+
+The worker may write requested build artifacts only to its issue-specific private artifact directory, supplied by `--add-dir`; it cannot write the independent operator acceptance receipt through that grant. An operator device receipt is kept outside source at `operator-device-evidence.json` in the private state directory, keyed by Issue number with `source_fingerprint`, `status: passed`, and a concrete `evidence` locator. Keep private paths/device details out of public comments.
