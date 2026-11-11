@@ -1,0 +1,16 @@
+unity/[Ll]ibrary/
+unity/[Tt]emp/
+unity/[Oo]bj/
+unity/[Ll]ogs/
+unity/[Uu]serSettings/
+unity/Builds/
+unity/Assets/StreamingAssets/private/
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+.env
+private/
+outputs/
+docs/parent-integration-note.md
+*.egg-info/

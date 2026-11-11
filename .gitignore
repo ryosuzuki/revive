@@ -1,0 +1,20 @@
+# Dependencies, generated artifacts and private data
+.venv/
+__pycache__/
+*.pyc
+.env
+.env.*
+!.env.example
+.DS_Store
+**/Library/
+**/Temp/
+**/Logs/
+**/Obj/
+**/UserSettings/
+**/Builds/
+private/
+**/private/
+*.apk
+*.aab
+*.zip
+*.part-*
