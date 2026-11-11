@@ -1,0 +1,44 @@
+name: Revive a research paper
+description: Request an implementation, tests, and a reproducible demonstration.
+title: "[Revive] "
+labels: ["revive:ready"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This is a public issue. Do not attach private recordings, room scans, credentials, or personal information. Trusted requesters are picked up automatically; others remain for maintainer review. Public demonstrations must use public or synthetic inputs.
+  - type: input
+    id: slug
+    attributes:
+      label: Paper slug
+      description: Lowercase kebab-case folder name, e.g. agent-hands.
+      placeholder: agent-hands
+    validations:
+      required: true
+  - type: input
+    id: paper
+    attributes:
+      label: Paper title and URL / DOI
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Requested behavior and deliverables
+      description: Describe what should work, platform (Unity/Quest/web), demo scenarios, and omissions.
+    validations:
+      required: true
+  - type: textarea
+    id: sources
+    attributes:
+      label: Public source code, assets, and test inputs
+      description: Public URLs only. For private inputs, state that they must be provided through an approved private channel; do not upload them here.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance tests
+      description: What real behavior must be tested? Distinguish software tests, replay, APK build, physical installation, and live-device behavior.
+    validations:
+      required: true

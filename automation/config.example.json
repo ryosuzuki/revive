@@ -1,0 +1,20 @@
+{
+  "repository": "ryosuzuki/revive",
+  "checkout": "/ABSOLUTE/PRIVATE/checkout/revive",
+  "worktree_parent": "/ABSOLUTE/PRIVATE/worktrees",
+  "state_dir": "/ABSOLUTE/PRIVATE/runtime/revive",
+  "trusted_users": [
+    {"login": "ryosuzuki", "id": 1428255},
+    {"login": "AdaZhao1211", "id": 15391042}
+  ],
+  "max_attempts": 3,
+  "retry_delay_seconds": 300,
+  "timeout_seconds": 14400,
+  "verification_commands": [],
+  "engine_command": [
+    "/Applications/ChatGPT.app/Contents/Resources/codex-cli/bin/codex",
+    "exec", "--sandbox", "workspace-write",
+    "-c", "approval_policy=\"never\"",
+    "-c", "sandbox_workspace_write.network_access=true"
+  ]
+}
