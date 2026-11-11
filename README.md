@@ -33,3 +33,7 @@ These are independent reconstructions, not the original authors' implementations
 ## Privacy
 
 This is a public catalog. Use only public or synthetic inputs here. Private research recordings stay in their original private context, not in Issues or public Releases.
+
+## Collaborator onboarding
+
+[Detailed collaborator instructions](docs/collaborator-guide.md) · [Trigger architecture and deployment limits](docs/trigger-architecture.md)
