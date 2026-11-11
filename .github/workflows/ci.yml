@@ -11,3 +11,8 @@ jobs:
         with:
           python-version: '3.12'
       - run: python -m unittest discover -s tests -v
+      - name: AgentHands software regression checks
+        working-directory: papers/agent-hands
+        env:
+          PYTHONPATH: src
+        run: python -m unittest discover -s tests -v
