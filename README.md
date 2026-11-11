@@ -12,7 +12,7 @@
 
 Open an [Issue](https://github.com/ryosuzuki/revive/issues/new/choose) with the paper title/link, available code/video, desired platform, expected interaction and acceptance criteria. Do not attach private recordings, credentials or confidential conversations to this public repository. Use a separate private handoff for those inputs.
 
-Issue intake and execution are distinct: an acknowledged request is not a completed implementation. Implementations should return source, tests, a reviewable PR, reproducible build instructions and clearly labeled media; report concrete blockers instead of silently claiming success. See the repository's automation documentation for the installed trigger and current operating limits.
+Issue intake and execution are distinct: an acknowledged request is not a completed implementation. Implementations should return source, tests, a reviewable PR, reproducible build instructions and clearly labeled media; report concrete blockers instead of silently claiming success. See [issue automation](docs/issue-automation.md) for the installed trigger and current operating limits.
 
 ## Layout
 
@@ -29,3 +29,7 @@ Large build artifacts and videos belong in [Releases](https://github.com/ryosuzu
 ## Attribution
 
 These are independent reconstructions, not the original authors' implementations unless a paper explicitly says otherwise. Paper, model, SDK and third-party licenses remain separate; consult each paper's provenance notes. No blanket license for third-party content is implied.
+
+## Privacy
+
+This is a public catalog. Use only public or synthetic inputs here. Private research recordings stay in their original private context, not in Issues or public Releases.
