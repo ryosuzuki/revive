@@ -42,3 +42,12 @@ body:
       description: What real behavior must be tested? Distinguish software tests, replay, APK build, physical installation, and live-device behavior.
     validations:
       required: true
+  - type: checkboxes
+    id: required-acceptance
+    attributes:
+      label: Required acceptance
+      description: Source and software tests are always required. Select additional real artifacts/physical gates; unchecked items are not required. A missing gate remains blocked, not complete.
+      options:
+        - label: apk
+        - label: video
+        - label: physical-device

@@ -13,3 +13,9 @@ GitHub Actions runs repository tests on push/PR. It is not the local implementat
 ## Local deployment
 
 Copy a private config with `repository`, `trusted_users` (numeric IDs), `checkout`, `state_dir`, and `worktree_parent`. Run `python3 automation/revive_runner.py poll --config /private/config.json --execute` from a local scheduler. Paths, login material and execution logs are not committed. See the default engine command in the runner. Inspect private status with its `status` action.
+
+## Verified deployment — 2026-11-11
+
+The local Mac Studio watcher was installed and observed exiting successfully. An actual [test Issue #1](https://github.com/ryosuzuki/revive/issues/1) invoked the installed Codex CLI, which wrote a ray/box implementation, English README, result manifest and 18 synthetic tests. The supervisor independently ran the tests and created [PR #2](https://github.com/ryosuzuki/revive/pull/2), head `f6a72f18527660a9cb2c8e4671c10904e34ebb2a`. GitHub checks passed. A second poll returned `idle`, without another run.
+
+The first attempt exposed unsupported symlinked writable roots; deployment now uses resolved real-volume paths. This proves the Issue-to-code/tests-to-PR path, not arbitrary-paper fidelity, future APK correctness or physical hardware success. The test PR is deliberately left open for inspection.
