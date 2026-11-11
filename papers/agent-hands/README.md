@@ -4,6 +4,10 @@ Independent reconstruction of **AgentHands: Generating Interactive Hand Gestures
 
 **Not the authors' original source. Gaze is deliberately omitted.** The public fixture uses only synthetic geometry; private room recordings are neither included nor required to run the software tests.
 
+![Four synthetic Unity gesture fixtures: point, present, measure, rotate](media/agent-hands-synthetic-preview.jpg)
+
+[Watch the public synthetic runtime demo](https://github.com/ryosuzuki/revive/releases/download/agent-hands-v0.1.1/agent-hands-synthetic-demo.mp4) · [Download the public Quest APK](https://github.com/ryosuzuki/revive/releases/download/agent-hands-v0.1.1/agent-hands-public.apk)
+
 ## What it does
 
 - Converts generated paper-style inline gesture markup into shared typed spatial events.
@@ -42,7 +46,7 @@ AGENT_HANDS_APK=/absolute/output/agent-hands.apk \
 adb -s YOUR_SERIAL install -r /absolute/output/agent-hands.apk
 ```
 
-The package is `org.prlab.agenthands`. Configure `server.json` in the app's persistent-data directory before use:
+The public build is version **0.1.1**, Android versionCode **2**. The package is `org.prlab.agenthands`. Configure `server.json` in the app's persistent-data directory before use:
 
 ```json
 {"server":"http://YOUR_PRIVATE_WIFI_HOST:18311"}
