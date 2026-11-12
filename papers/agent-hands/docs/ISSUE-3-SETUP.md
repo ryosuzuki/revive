@@ -58,3 +58,18 @@ The full timeline includes the recorded question, a disclosed held-view thinking
 3. Show idle before the question, thinking, speech/gesture, return to idle; toggle X and capture readable raw tags/parsed active events.
 4. Verify tracking and registration under head translation, rotation, look-away/return; inspect real hand interaction rather than simulating contact.
 5. Quit/relaunch, verify setup/error recovery; use ordinary Wi-Fi without ADB reverse. Transport, install/launch, provider inference, spatial alignment, and interaction are separate checks.
+
+## Recorded-replay provider selection
+
+The existing local GPU/macOS-speech path remains explicitly available as `AGENT_HANDS_PROVIDER=local`. To use the paper's provider for fresh recorded responses, configure your own operator credential outside Git:
+
+```sh
+export AGENT_HANDS_PROVIDER=gemini
+export AGENT_HANDS_API_KEY_FILE=/YOUR/PRIVATE/operator-key.txt
+export AGENT_HANDS_RESPONSE_MODEL=gemini-2.5-flash-exp
+export AGENT_HANDS_TTS_MODEL=gemini-2.5-flash-preview-tts
+```
+
+The exact response ID currently returns404 for the operator. **Only after replacement approval**, explicitly select `AGENT_HANDS_RESPONSE_MODEL=gemini-2.5-flash` and `AGENT_HANDS_APPROVED_REPLACEMENT=true`. Environment selection applies to `generate_replays.py`, `refine_responses.py`, dialogue generation, perception/registration and TTS. No provider/model fallback is silent. `AGENT_HANDS_API_KEY` may instead be injected securely by your credential manager; never paste its value into commands, logs or Git. Native Quest `models.json` is separate from these operator environment variables.
+
+For interactive hand contact, the project now pins official **XR Hands1.10.0** and enables its OpenXR Hand Tracking Subsystem. Tracked palm joint positions are transformed through the same XR Origin as the camera/controller. Untracked hands return no contact, not a fabricated controller hand. Turn on the debug panel while holding controllers, then put controllers down and acquire actual hand tracking for the contact test; record its left/right availability flags. Compilation/provider configuration is not proof of physical tracking.

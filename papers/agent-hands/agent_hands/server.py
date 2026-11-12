@@ -4,7 +4,7 @@ from pathlib import Path
 from fastapi import FastAPI,HTTPException
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
-from .dialogue import answer,speak
+from .dialogue import answer
 from .events import SpatialObject
 app=FastAPI(title='AgentHands private dialogue bridge')
 ROOT=Path(os.environ.get('AGENT_HANDS_RUNTIME','/tmp/openclaw/agent-hands-service'));ROOT.mkdir(parents=True,exist_ok=True)
@@ -52,8 +52,9 @@ def dialogue(r:Request):
                 if extra in o:valid[extra]=o[extra]
             objects.append(valid)
         if len(r.head)!=3 or not all(__import__('math').isfinite(v) for v in r.head):raise ValueError('Invalid camera position')
-        plan=answer(q,objects,head=r.head)
-        key=uuid.uuid4().hex; speak(plan['response'],ROOT/(key+'.wav'));plan['audioUrl']='/audio/'+key+'.wav'
+        key=uuid.uuid4().hex
+        plan=answer(q,objects,head=r.head,audio_destination=ROOT/(key+'.wav'))
+        plan['audioUrl']='/audio/'+key+'.wav'
         (ROOT/(key+'.json')).write_text(json.dumps(plan,indent=2))
         return plan
     except (ValueError,KeyError) as e:raise HTTPException(422,str(e))
@@ -79,13 +80,13 @@ def visual_registration(r:VisualRegistration):
     A caller must supply a confirmed controller/hand mesh hit and sensor camera
     calibration. The spoken-point Quest fallback deliberately does not fake it.
     """
-    from .backend import Backend
+    from .backend import configured_backend
     from .registration import register_box
     try:
         if len(r.selection)!=2 or len(r.hit)!=3:raise ValueError('Confirmed pixel and mesh hit required')
         image=base64.b64decode(r.imageBase64,validate=True)
         if len(image)>8*1024*1024:raise ValueError('Image exceeds bounded input size')
-        data=Backend().perceive(image,r.selection)
+        data=configured_backend().perceive(image,r.selection)
         obj=register_box('object-'+uuid.uuid4().hex[:8],data['label'],r.hit,r.camera,r.intrinsics,data['bbox'],data['size'],data.get('parts',{}))
         obj['confidence']=float(data.get('confidence',.5));obj['provenance']['model']=data.get('modelProvenance',{})
         return {'object':obj}

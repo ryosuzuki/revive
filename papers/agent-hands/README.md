@@ -44,7 +44,7 @@ Install `ffmpeg` for audio/video conversion. Speech synthesis currently uses mac
 
 ## Quest build and controls
 
-Unity **6000.4.5f1** with Android SDK/NDK/OpenJDK; OpenXR 1.16.1, Meta OpenXR 2.5.0; ARM64 IL2CPP, Android API32 minimum.
+Unity **6000.4.5f1** with Android SDK/NDK/OpenJDK; OpenXR 1.16.1, Meta OpenXR 2.5.0, XR Hands1.10.0; ARM64 IL2CPP, Android API32 minimum.
 
 ```sh
 AGENT_HANDS_APK=/absolute/output/agent-hands.apk \

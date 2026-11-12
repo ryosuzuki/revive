@@ -4,7 +4,7 @@ import sys,json,wave
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 import numpy as np
-from agent_hands.backend import Backend
+from agent_hands.backend import configured_backend
 from agent_hands.capture import quaternion_matrix,project
 from agent_hands.registration import mesh_hit,register_box
 from agent_hands.dialogue import speak
@@ -13,7 +13,7 @@ from agent_hands.adapter import unity_plan,refine_audio
 def generate(session_path):
  p=Path(session_path);s=json.loads((p/'session.json').read_text());transcript=json.loads((p/'transcript.json').read_text());q=' '.join(x['text'].strip()for x in transcript['segments'])
  # A uniformly selected middle sensor frame is visual context, not a gaze estimate.
- frame=s['frames'][len(s['frames'])//2];im=(p/frame['image']).read_bytes();backend=Backend();result=backend.detect(im,q);(p/'perception.json').write_text(json.dumps(result,indent=2))
+ frame=s['frames'][len(s['frames'])//2];im=(p/frame['image']).read_bytes();backend=configured_backend();result=backend.detect(im,q);(p/'perception.json').write_text(json.dumps(result,indent=2))
  registry={};rejected=[];k=s['intrinsics'];room=json.loads((p/'room-geometry.json').read_text());rot=quaternion_matrix(frame['rotation'])
  for o in result['objects']:
   try:

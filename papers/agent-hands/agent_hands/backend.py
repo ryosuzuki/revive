@@ -40,3 +40,22 @@ class Backend:
    obj['bbox']=[float(v)*(width if i%2==0 else height)/1000 for i,v in enumerate(obj['bbox'])]
    obj['parts']={k:v for k,v in obj.get('parts',{}).items() if isinstance(v,str) and re.fullmatch(r'[FBTDLR]:(top|center|bottom):(left|center|right)',v)}
   data['modelProvenance']={k:v for k,v in result.items() if k!='text'};data['bboxCoordinates']='original pixels converted from model normalized 0..1000';return data
+
+
+def configured_backend():
+ """Explicit provider selection; keys are supplied by the operator, never discovered."""
+ provider=os.environ.get('AGENT_HANDS_PROVIDER','local')
+ if provider=='local':return Backend()
+ if provider!='gemini':raise ValueError('Unsupported configured provider; no fallback')
+ from pathlib import Path
+ from .gemini import GeminiBackend,RESPONSE_MODEL,TTS_MODEL
+ model=os.environ.get('AGENT_HANDS_RESPONSE_MODEL',RESPONSE_MODEL)
+ tts=os.environ.get('AGENT_HANDS_TTS_MODEL',TTS_MODEL)
+ approved=os.environ.get('AGENT_HANDS_APPROVED_REPLACEMENT','').lower() in {'1','true','yes'}
+ if (model!=RESPONSE_MODEL or tts!=TTS_MODEL) and not approved:raise ValueError('Replacement model requires explicit approval; no fallback')
+ key=os.environ.get('AGENT_HANDS_API_KEY','').strip()
+ if not key and os.environ.get('AGENT_HANDS_API_KEY_FILE'):
+  try:key=Path(os.environ['AGENT_HANDS_API_KEY_FILE']).read_text().strip()
+  except OSError:raise ValueError('Cannot read explicitly configured API key file') from None
+ if not key or len(key)>512 or '\n' in key or '\r' in key:raise ValueError('Missing or invalid configured API key')
+ return GeminiBackend(key,model=model,tts_model=tts)

@@ -8,11 +8,12 @@ RESPONSE_MODEL='gemini-2.5-flash-exp'
 TTS_MODEL='gemini-2.5-flash-preview-tts'
 
 class GeminiBackend(Backend):
-    def __init__(self,key,model=RESPONSE_MODEL):
+    def __init__(self,key,model=RESPONSE_MODEL,tts_model=TTS_MODEL):
         import re
         if not key or not re.fullmatch(r'[A-Za-z0-9.-]+',model):
             raise ValueError('Explicit API credential and valid model ID required')
-        self._key=key;self.model=model
+        self._key=key;self.model=model;self.tts_model=tts_model
+        if not re.fullmatch(r'[A-Za-z0-9.-]+',tts_model):raise ValueError('Invalid TTS model ID')
     def generate(self,prompt,image=None):
         parts=[{'text':prompt}]
         if image:parts.append({'inlineData':{'mimeType':'image/jpeg','data':base64.b64encode(image).decode()}})
@@ -26,9 +27,10 @@ class GeminiBackend(Backend):
         if response.status_code!=200:
             raise RuntimeError(f'Configured provider model {model} failed with HTTP{response.status_code}; no fallback performed')
         return response.json()
-    def speak(self,text,destination,model=TTS_MODEL):
+    def speak(self,text,destination,model=None):
         # Credentials only in headers to the fixed TLS provider origin.
         import re
+        model=model or self.tts_model
         if not re.fullmatch(r'[A-Za-z0-9.-]+',model):raise ValueError('Invalid TTS model ID')
         reply=self._request(model,{'contents':[{'parts':[{'text':'Say clearly in English: '+text}]}],'generationConfig':{'responseModalities':['AUDIO'],'speechConfig':{'voiceConfig':{'prebuiltVoiceConfig':{'voiceName':'Kore'}}}}})
         audio=next(p['inlineData'] for p in reply['candidates'][0]['content']['parts'] if 'inlineData' in p)
