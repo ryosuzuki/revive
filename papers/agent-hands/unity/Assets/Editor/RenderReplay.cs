@@ -7,7 +7,7 @@ using UnityEngine.Rendering;
 using AgentHands;
 public class RenderReplay {
  [Serializable]class K{public int width,height;public float fx,fy,cx,cy;}
- [Serializable]class Frame{public float time;public float[] position,rotation,leftUserHand,rightUserHand;public string image;}
+ [Serializable]class Frame{public float time;public float[] position,rotation,leftUserHand,rightUserHand;public string image,phase;}
  [Serializable]class Session{public string id;public K intrinsics;public Frame[] frames;}
  [Serializable]class Room{public Part[] parts;}
  [Serializable]class Part{public string label;public float[] vertices;public int[] triangles;}
@@ -25,7 +25,7 @@ public class RenderReplay {
   RenderSettings.ambientMode=AmbientMode.Flat;RenderSettings.ambientLight=new Color(.45f,.48f,.52f);var light=new GameObject("Key light").AddComponent<Light>();light.type=LightType.Directional;light.intensity=.8f;light.transform.rotation=Quaternion.Euler(35,-30,0);
   var target=new RenderTexture(k.width,k.height,24,RenderTextureFormat.ARGB32);cam.targetTexture=target;var tex=new Texture2D(k.width,k.height,TextureFormat.RGBA32,false);
   float origin=0;float.TryParse(Environment.GetEnvironmentVariable("AGENT_HANDS_RESPONSE_START"),out origin);
-  for(int i=0;i<session.frames.Length;i++){var f=session.frames[i];cam.transform.position=new Vector3(f.position[0],f.position[1],f.position[2]);cam.transform.rotation=new Quaternion(f.rotation[0],f.rotation[1],f.rotation[2],f.rotation[3]);rt.Seek(f.time-origin,Hand(f.leftUserHand),Hand(f.rightUserHand));cam.Render();RenderTexture.active=target;tex.ReadPixels(new Rect(0,0,k.width,k.height),0,0);tex.Apply();File.WriteAllBytes(Path.Combine(output,i.ToString("D5")+".png"),tex.EncodeToPNG());}
+  for(int i=0;i<session.frames.Length;i++){var f=session.frames[i];cam.transform.position=new Vector3(f.position[0],f.position[1],f.position[2]);cam.transform.rotation=new Quaternion(f.rotation[0],f.rotation[1],f.rotation[2],f.rotation[3]);rt.Place(cam.transform.position,cam.transform.forward,i>0?f.time-session.frames[i-1].time:.1f);rt.IsSpeaking=f.phase=="response";rt.SetState(f.phase=="thinking"?"thinking":f.phase=="recorded question"?"listening":"idle");rt.Seek(f.time-origin,Hand(f.leftUserHand),Hand(f.rightUserHand));cam.Render();RenderTexture.active=target;tex.ReadPixels(new Rect(0,0,k.width,k.height),0,0);tex.Apply();File.WriteAllBytes(Path.Combine(output,i.ToString("D5")+".png"),tex.EncodeToPNG());}
   RenderTexture.active=null;cam.targetTexture=null;UnityEngine.Object.DestroyImmediate(tex);UnityEngine.Object.DestroyImmediate(target);Debug.Log("AGENT_HANDS_RENDERED frames="+session.frames.Length+" session="+session.id+" gaze=false");
  }
 }

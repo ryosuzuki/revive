@@ -27,10 +27,10 @@ def unity_plan(parsed,registry,duration,head=(0,1.5,0)):
         if kind in {'Burn','Poisoned','Spoil'}:effect=kind.lower()
         interaction=a.get('interactivity','none')
         if kind=='Celebration':interaction='highFive'
-        events.append({'id':f'{i}-{kind}','start':start,'duration':max(.001,end-start),'gesture':gesture,'targetId':target,'hand':hand,'speech':' '.join(parsed['words'][event['wordIndex']:min(len(parsed['words']),event['wordIndex']+12)]),'pose':pose,'motion':a.get('dynamics','static'),'effect':effect,'interactivity':interaction,'paperEvent':kind,'region':a.get('region','')})
+        events.append({'id':f'{i}-{kind}','wordIndex':event['wordIndex'],'start':start,'duration':max(.001,end-start),'gesture':gesture,'targetId':target,'hand':hand,'speech':' '.join(parsed['words'][event['wordIndex']:min(len(parsed['words']),event['wordIndex']+12)]),'pose':pose,'motion':a.get('dynamics','static'),'effect':effect,'interactivity':interaction,'paperEvent':kind,'region':a.get('region','')})
         if hand=='both':last_used={'left':start,'right':start}
         else:last_used[hand]=start
-    return {'version':1,'gaze':False,'objects':objects,'events':events,'transcript':parsed.get('question',''),'response':parsed['speech'],'tagged':parsed.get('tagged',''),'alignment':parsed['alignment'],'provenance':parsed.get('provenance',{})}
+    return {'version':1,'responseDuration':duration,'wordStarts':parsed.get('wordStarts',[]),'gaze':False,'objects':objects,'events':events,'transcript':parsed.get('question',''),'response':parsed['speech'],'tagged':parsed.get('tagged',''),'alignment':parsed['alignment'],'provenance':parsed.get('provenance',{})}
 
 def refine_audio(plan,wav_path):
     """Paper-inspired pause snapping: smoothed RMS minima within +/-120 ms.
@@ -43,10 +43,16 @@ def refine_audio(plan,wav_path):
     if channels>1:data=data.reshape(-1,channels).mean(axis=1)
     step=max(1,int(rate*.01));window=max(1,int(rate*.04))
     rms=np.sqrt(np.convolve(data*data,np.ones(window)/window,mode='same'))[::step]
+    word_starts=[]
+    for center in plan.get('wordStarts',[]):
+        lo=max(0,int((center-.12)*rate/step));hi=min(len(rms),int((center+.12)*rate/step)+1)
+        adjusted=float((lo+int(np.argmin(rms[lo:hi])))*step/rate) if hi>lo else center
+        word_starts.append(max(word_starts[-1]+.001 if word_starts else 0,min(adjusted,len(data)/rate)))
+    if word_starts:plan['wordStarts']=word_starts
     candidates=[]
     for e in plan['events']:
-        center=e['start'];lo=max(0,int((center-.12)*rate/step));hi=min(len(rms),int((center+.12)*rate/step)+1)
-        adjusted=float((lo+int(np.argmin(rms[lo:hi])))*step/rate) if hi>lo else center
+        center=word_starts[e['wordIndex']] if word_starts and 'wordIndex' in e else e['start'];lo=max(0,int((center-.12)*rate/step));hi=min(len(rms),int((center+.12)*rate/step)+1)
+        adjusted=center if word_starts and 'wordIndex' in e else float((lo+int(np.argmin(rms[lo:hi])))*step/rate) if hi>lo else center
         adjusted=max(0,min(adjusted,max(0,len(data)/rate-.05)))
         candidates.append((e,adjusted))
     previous=-1.
