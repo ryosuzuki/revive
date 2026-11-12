@@ -26,7 +26,7 @@ Private-room inputs and their media are excluded from this public repository. Pu
 
 ## Issue #3 work in progress — 2026-11-12 UTC
 
-This section supersedes old renderer/key/model descriptions only for the Issue3 branch. It does not declare the Issue complete. [Setup and acceptance procedure](ISSUE-3-SETUP.md).
+This section supersedes old renderer/key/model descriptions for the Issue #3 implementation integrated into main. It does not declare the Issue complete. [Setup and acceptance procedure](ISSUE-3-SETUP.md).
 
 | Component / paper reference | Current implementation and differences | Evidence / unresolved gate |
 | --- | --- | --- |
@@ -52,3 +52,7 @@ Current software evidence: Python30/30 (including real-provider invalid-region r
 Paper §6 states both study conditions used identical researcher-scripted verbal content; AppendixD describes progression through a scripted transcript. This is not a reason to label our fixture as a fresh model-driven conversation. The full paper's §3.3/§4/§6 and AppendixD were checked. The official Google blog's overview montage and separate TechPrint/Lifestyle/Orchid short videos were inspected. Full YouTube download returned403; no full-YouTube review is claimed.
 
 A connected Quest3 accepted the0.2.0 APK. The initial startup exposed a persistentDataPath field-initializer error, which was fixed and covered by a lifecycle regression. Subsequent device sessions encountered the system Library tutorial and Guardian/FocusPlaceholder before Unity app readiness. The tutorial's observed Done control was dismissed; normal microphone permission was granted and read back. Finite proximity sessions were restored to enabled=true/override=DISABLED. No boundary/tracking disablement was used. APK installation and a process appearing do **not** establish app initialization, spatial tracking, interaction, or provider integration on the headset; those gates remain open.
+
+## Main integration
+
+PR #4 (Issue #3 implementation) and PR #2 (pipeline smoke) are integrated into main at the maintainer's request. Integration is not physical acceptance or Issue #3 completion. Integrated-tree checks: runner 52/52, AgentHands 30/30, pipeline smoke 28/28. Previously recorded Unity 29/29 checks were run on the unchanged implementation source, not rerun as part of this Git integration. Full reference-video review, on-headset acceptance and response-model approval remain open.

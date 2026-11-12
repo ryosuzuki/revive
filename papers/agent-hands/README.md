@@ -10,7 +10,7 @@ Independent reconstruction of **AgentHands: Generating Interactive Hand Gestures
 
 ## Issue #3 implementation (0.2.0, validation in progress)
 
-This branch adds persistent orb/two-hand embodiment, idle transitions, a GestureEvent debug panel, and direct Google provider configuration. [Issue #3 setup and key placement](docs/ISSUE-3-SETUP.md) · [Paper comparison and verification](docs/VERIFICATION.md) · [Active PR #4](https://github.com/ryosuzuki/revive/pull/4).
+The main branch includes persistent orb/two-hand embodiment, idle transitions, a GestureEvent debug panel, and direct Google provider configuration. [Issue #3 setup and key placement](docs/ISSUE-3-SETUP.md) · [Paper comparison and verification](docs/VERIFICATION.md) · [Implementation PR #4](https://github.com/ryosuzuki/revive/pull/4).
 
 ![Paper Fig.1 versus this synthetic Unity embodiment](media/agent-hands-paper-comparison.jpg)
 
