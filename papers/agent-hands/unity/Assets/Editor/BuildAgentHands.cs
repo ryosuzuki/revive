@@ -13,7 +13,7 @@ using UnityEngine.XR.OpenXR.Features;
 using UnityEditor.XR.OpenXR.Features;
 public class BuildAgentHands {
  public static void Android(){
-  Assets();PlayerSettings.companyName="Programmable Reality Lab";PlayerSettings.productName="AgentHands";PlayerSettings.SetApplicationIdentifier(UnityEditor.Build.NamedBuildTarget.Android,"org.prlab.agenthands");PlayerSettings.bundleVersion="0.1.1";PlayerSettings.Android.bundleVersionCode=2;
+  Assets();PlayerSettings.companyName="Programmable Reality Lab";PlayerSettings.productName="AgentHands";PlayerSettings.SetApplicationIdentifier(UnityEditor.Build.NamedBuildTarget.Android,"org.prlab.agenthands");PlayerSettings.bundleVersion="0.2.0";PlayerSettings.Android.bundleVersionCode=3;
   PlayerSettings.SetScriptingBackend(UnityEditor.Build.NamedBuildTarget.Android,ScriptingImplementation.IL2CPP);PlayerSettings.Android.targetArchitectures=AndroidArchitecture.ARM64;PlayerSettings.Android.minSdkVersion=AndroidSdkVersions.AndroidApiLevel32;PlayerSettings.Android.targetSdkVersion=AndroidSdkVersions.AndroidApiLevelAuto;
   PlayerSettings.Android.forceInternetPermission=true;PlayerSettings.insecureHttpOption=InsecureHttpOption.DevelopmentOnly;
   var serialized=new SerializedObject(AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/ProjectSettings.asset")[0]);var input=serialized.FindProperty("activeInputHandler");if(input!=null){input.intValue=2;serialized.ApplyModifiedPropertiesWithoutUndo();}
