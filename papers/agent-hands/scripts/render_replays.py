@@ -56,6 +56,9 @@ def composite(p,s,render):
   active=[e for e in plan['events']if e['start']<=response_time<e['start']+e['duration']]
   # Segment by proportional speech time; source text is never rewritten.
   words=response.split();duration=max(.1,s.get('responseDuration',s['duration']));ix=max(0,min(len(words)-1,int(response_time/duration*len(words))));first=(ix//13)*13;caption=' '.join(words[first:first+13]) if phase=='response' else phase
+  if plan.get('wordStarts'):
+   import bisect
+   ix=max(0,min(len(words)-1,bisect.bisect_right(plan['wordStarts'],response_time)-1));first=(ix//13)*13;caption=' '.join(words[first:first+13]) if phase=='response' else phase
   lines=textwrap.wrap(caption,width=63);h=len(lines)*35+35;d.rounded_rectangle((30,1280-h-25,1250,1255),radius=12,fill=(8,14,24,220))
   for j,line in enumerate(lines):d.text((50,1280-h-7+j*35),line,font=font,fill='white')
   question=plan.get('interpretedQuestion',plan.get('transcript',''));questionLines=textwrap.wrap('Question (visually contextualized ASR): '+question,width=80)

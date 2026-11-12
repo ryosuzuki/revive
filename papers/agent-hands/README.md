@@ -8,6 +8,14 @@ Independent reconstruction of **AgentHands: Generating Interactive Hand Gestures
 
 [Watch the public synthetic runtime demo](https://github.com/ryosuzuki/revive/releases/download/agent-hands-v0.1.1/agent-hands-synthetic-demo.mp4) · [Download the public Quest APK](https://github.com/ryosuzuki/revive/releases/download/agent-hands-v0.1.1/agent-hands-public.apk)
 
+## Issue #3 implementation (0.2.0, validation in progress)
+
+This branch adds persistent orb/two-hand embodiment, idle transitions, a GestureEvent debug panel, and direct Google provider configuration. [Issue #3 setup and key placement](docs/ISSUE-3-SETUP.md) · [Paper comparison and verification](docs/VERIFICATION.md) · [Active PR #4](https://github.com/ryosuzuki/revive/pull/4).
+
+![Paper Fig.1 versus this synthetic Unity embodiment](media/agent-hands-paper-comparison.jpg)
+
+The paper excerpt is Liu et al., CHI 2026, Fig.1, cropped/resized under CC BY4.0; DOI10.1145/3772318.3790938. The right-side image is our synthetic runtime, not a room/headset capture. Links to the existing0.1.1 Release below remain the **reference baseline**, not a claim that the0.2.0 APK has passed physical acceptance.
+
 ## What it does
 
 - Converts generated paper-style inline gesture markup into shared typed spatial events.

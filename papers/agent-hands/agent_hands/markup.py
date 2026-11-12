@@ -39,6 +39,11 @@ def parse(text,registry):
                 attrs['object']=object_id;attrs['region']=':'.join((face,vertical,horizontal))
         target=attrs.get('object',attrs.get('target'))
         if target and target not in registry:raise ValueError('Unknown registered object '+target)
+        if attrs.get('region'):
+            if not target:raise ValueError('Semantic region requires registered object')
+            from .registration import resolve_region
+            obj=registry[target]
+            resolve_region({**obj,'axes':obj.get('axes',[[1,0,0],[0,1,0],[0,0,1]])},attrs['region'])
         if event_id in {'PointObject','RegionOfObject','DirectionOfObject','ObjectProxy','Action'} and not target:raise ValueError('Spatial event requires registered object')
         events.append({'id':event_id,'character':length,'attributes':attrs})
         cursor=match.end()
@@ -63,4 +68,4 @@ def schedule(parsed,duration):
     for event in parsed['events']:
         i=event['wordIndex'];start=starts[i]
         events.append({**event,'start':start,'duration':min(2.5,duration-start)})
-    return {**parsed,'events':events,'duration':duration,'alignment':'word-length and punctuation heuristic; not forced alignment'}
+    return {**parsed,'events':events,'wordStarts':starts[:-1],'duration':duration,'alignment':'word-length and punctuation heuristic; not forced alignment'}

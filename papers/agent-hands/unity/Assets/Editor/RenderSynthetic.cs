@@ -21,7 +21,7 @@ public class RenderSynthetic {
    new GestureEvent{id="synthetic-2",interactivity="none",start=4,duration=2,gesture="measure",pose="palm",targetId=obj.id,hand="both"},
    new GestureEvent{id="synthetic-3",interactivity="none",start=6,duration=2,gesture="rotate",pose="point",targetId=obj.id,hand="right"}}};
   var rt=new GestureRuntime(Resources.Load<Material>("AgentHandMaterial"));rt.Load(plan);var target=new RenderTexture(960,720,24,RenderTextureFormat.ARGB32);cam.targetTexture=target;var tex=new Texture2D(960,720,TextureFormat.RGBA32,false);
-  for(int i=0;i<160;i++){rt.Seek(i/20f);cam.Render();RenderTexture.active=target;tex.ReadPixels(new Rect(0,0,960,720),0,0);tex.Apply();File.WriteAllBytes(Path.Combine(output,i.ToString("D5")+".png"),tex.EncodeToPNG());}
-  RenderTexture.active=null;Debug.Log("REVIVE_SYNTHETIC_RENDERED frames=160 gaze=false");
+  for(int i=0;i<280;i++){rt.Place(cam.transform.position,cam.transform.forward,.05f);rt.SetState(i<20?"idle":i<40?"thinking":"idle");rt.Seek(i/20f-2);cam.Render();RenderTexture.active=target;tex.ReadPixels(new Rect(0,0,960,720),0,0);tex.Apply();File.WriteAllBytes(Path.Combine(output,i.ToString("D5")+".png"),tex.EncodeToPNG());}
+  RenderTexture.active=null;Debug.Log("REVIVE_SYNTHETIC_RENDERED frames=280 gaze=false");
  }
 }
